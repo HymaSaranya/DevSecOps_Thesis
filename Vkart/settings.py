@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "category",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -54,7 +56,7 @@ ROOT_URLCONF = "Vkart.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -68,6 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "Vkart.wsgi.application"
+AUTH_USER_MODEL = 'accounts.Account'
 
 
 # Database
@@ -109,9 +112,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR /'static' 
+STATICFILES_DIRS = [
+    'Vkart/static',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ #media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR/'media'
