@@ -54,7 +54,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "Vkart.urls"
 
-TEMPLATES = [
+TEMPLATES = [   
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": ['templates'],
@@ -65,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "category.context_proccessors.menu_links",
             ],
         },
     },
