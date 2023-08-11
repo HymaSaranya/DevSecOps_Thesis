@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cart, CartItem
 from store.models import Product 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
 # Create your views here.
 def _cart_id(request):
@@ -11,6 +12,9 @@ def _cart_id(request):
       return cart 
 
 def add_cart(request,product_id):
+    color = request.GET['color']
+    size = request.GET['size']
+    return HttpResponse(color +' '+size)
     product= Product.objects.get(id=product_id)
     try:
         cart=Cart.objects.get(cart_id=_cart_id(request))
