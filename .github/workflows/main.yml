@@ -23,7 +23,10 @@ jobs:
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
 
       - name: Run Bandit
-        run: bandit -r . -f html -o bandit-report.html
+        run: bandit -r . -f json -o bandit-report.json
+
+      - name: Convert Bandit JSON to HTML
+        run: bandit -f html -o bandit-report.html -n 1 -x bandit-report.json
 
       - name: Run CodeClimate
         run: |
@@ -31,7 +34,7 @@ jobs:
           codeclimate-test-reporter upload-coverage -i codeclimate.html
 
       - name: Run Snyk
-        run: snyk test --all-projects --json > snyk-report.html
+        run: snyk test --all-projects --json > snyk-report.json
 
       - name: Upload Reports
         uses: actions/upload-artifact@v2
@@ -41,7 +44,7 @@ jobs:
             semgrep-report.html
             bandit-report.html
             codeclimate.html
-            snyk-report.html
+            snyk-report.json
 
   sonarcloud:
     name: SonarCloud Analysis
