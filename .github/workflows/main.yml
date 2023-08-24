@@ -1,0 +1,36 @@
+name: Run Semgrep and Generate HTML Report
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  semgrep:
+    name: Run Semgrep and Generate Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+
+      - name: Create and Activate Virtual Environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install Dependencies
+        run: pip install semgrep
+
+      - name: Run Semgrep
+        run: semgrep -o report.html .
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: semgrep-report
+          path: report.html
