@@ -24,7 +24,11 @@ jobs:
       - name: Run Bandit
         run: bandit -r . -f html -o bandit-report.html
         continue-on-error: true
-
+        
+      - name: Print Bandit Report
+        run: cat bandit-report.html  # Print the Bandit report contents
+        continue-on-error: true
+        
       - name: Run CodeClimate
         run: |
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
