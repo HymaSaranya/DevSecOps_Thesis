@@ -1,4 +1,4 @@
-name: Run Semgrep and Generate HTML Report
+name: DevSecOps Workflow
 
 on:
   push:
@@ -6,8 +6,59 @@ on:
       - main
 
 jobs:
-  semgrep:
-    name: Run Semgrep and Generate Report
+  security_scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: pip install semgrep bandit
+
+      - name: Run Semgrep
+        run: semgrep -o semgrep-report.html --config=.semgrep.yml .
+
+      - name: Run Bandit
+        run: bandit -r . -f html -o bandit-report.html
+
+      - name: Upload Semgrep Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: semgrep-report
+          path: semgrep-report.html
+
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: bandit-report
+          path: bandit-report.html
+
+  codeclimate:
+    name: CodeClimate Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install -g codeclimate-test-reporter
+
+      - name: Run CodeClimate
+        run: |
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
+          codeclimate-test-reporter upload-coverage -i codeclimate.json
+
+      - name: Upload CodeClimate Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: codeclimate-report
+          path: codeclimate.json
+
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -19,19 +70,32 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Create and Activate Virtual Environment
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run SonarCloud
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          sonar-scanner \
+            -Dsonar.organization=hymasaranya \
+            -Dsonar.projectKey=hymasaranya \
+            -Dsonar.sources=.
+
+  synk:
+    name: Synk Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
       - name: Install Dependencies
-        run: pip install semgrep
+        run: npm install -g snyk
 
-      - name: Run Semgrep
-        run: semgrep -o report.html --config=.semgrep.yml .
+      - name: Run Synk
+        run: snyk test --all-projects --all-sub-projects --json > snyk-report.json
 
-      - name: Upload Report
+      - name: Upload Synk Report
         uses: actions/upload-artifact@v2
         with:
-          name: semgrep-report
-          path: report.html
+          name: synk-report
+          path: snyk-report.json
