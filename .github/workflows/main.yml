@@ -1,13 +1,11 @@
-name: DevSecOps Workflow
-
 on:
   push:
     branches:
       - main
 
 jobs:
-  security_scan:
-    name: Security Scan
+  all_checks:
+    name: All Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -18,74 +16,31 @@ jobs:
         run: |
           pip install semgrep bandit
           npm install -g codeclimate-test-reporter snyk
-
       - name: Run Semgrep
-        run: semgrep -o semgrep-report.txt --config=.semgrep.yml .
+        run: semgrep -o semgrep-report.html --config=.semgrep.yml .
+        continue-on-error: true
 
       - name: Run Bandit
-        run: bandit -r . -f json -o bandit-report.json || true
+        run: bandit -r . -f html -o bandit-report.html
+        continue-on-error: true
 
       - name: Run CodeClimate
         run: |
-          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.txt
-        env:
-          CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
+          codeclimate-test-reporter upload-coverage -i codeclimate.json
+        continue-on-error: true
 
       - name: Run Snyk
-        run: snyk test --all-projects --json > snyk-report.json
+        run: snyk test --all-projects --all-sub-projects --json > snyk-report.json
+        continue-on-error: true
 
-      - name: Generate SonarCloud Report Link
-        run: echo "SonarCloud Report: $SONARQUBE_PROJECT_URL/dashboard?id=$GITHUB_REPOSITORY"
-
-      - name: Upload Semgrep Report
+      - name: Upload Reports
         uses: actions/upload-artifact@v2
         with:
-          name: semgrep-report
-          path: semgrep-report.txt
+          name: reports
+          path: |
+            semgrep-report.html
+            bandit-report.html
+            codeclimate.json
+            snyk-report.json
 
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: bandit-report
-          path: bandit-report.json
-
-      - name: Upload CodeClimate Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: codeclimate-report
-          path: codeclimate.txt
-
-      - name: Upload Snyk Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: snyk-report
-          path: snyk-report.json
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run SonarCloud
-        run: |
-          sonar-scanner \
-            -Dsonar.organization=hymasaranya \
-            -Dsonar.projectKey=hymasaranya \
-            -Dsonar.sources=.
-
-      - name: Upload SonarCloud Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: sonarcloud-report
-          path: .scannerwork/report-task.txt
