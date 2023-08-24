@@ -1,4 +1,4 @@
-name: Run Bandit Analysis
+name: Run Bandit
 
 on:
   push:
@@ -7,28 +7,12 @@ on:
 
 jobs:
   bandit:
-    name: Run Bandit
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install Bandit
-        run: |
-          pip install bandit
-
       - name: Run Bandit
         run: |
-          bandit -r .
-
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: bandit-report
-          path: bandit.json
+          docker run --rm -v $PWD:/code -w /code bandit/bandit:latest bandit -r .
