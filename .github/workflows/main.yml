@@ -6,24 +6,43 @@ on:
       - main
 
 jobs:
-  combine_reports:
-    name: Combine Reports
+  security_scan:
+    name: Security Scan
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Combine Reports
+      - name: Install Dependencies
         run: |
-          cat semgrep-report.txt >> combined-report.txt
-          cat bandit-report.txt >> combined-report.txt
-          cat codeclimate-report.txt >> combined-report.txt
-          cat snyk-report.txt >> combined-report.txt
-          echo "SonarCloud Report: $SONARQUBE_PROJECT_URL/dashboard?id=$GITHUB_REPOSITORY" >> combined-report.txt
+          pip install semgrep bandit
+          npm install -g codeclimate-test-reporter snyk
 
-      - name: Upload Combined Report
+      - name: Run Semgrep
+        run: semgrep -o semgrep-report.html --config=.semgrep.yml .
+
+      - name: Run Bandit
+        run: bandit -r . -f json -o bandit-report.json || true
+
+      - name: Run CodeClimate
+        run: |
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.txt
+        env:
+          CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+
+      - name: Run Snyk
+        run: snyk test --all-projects --json > snyk-report.txt
+
+      - name: Generate SonarCloud Report Link
+        run: echo "SonarCloud Report: $SONARQUBE_PROJECT_URL/dashboard?id=$GITHUB_REPOSITORY" >> combined-report.txt
+
+      - name: Upload Reports
         uses: actions/upload-artifact@v2
         with:
-          name: combined-report
-          path: combined-report.txt
+          name: reports
+          path: |
+            semgrep-report.html
+            bandit-report.json
+            codeclimate-report.txt
+            snyk-report.txt
