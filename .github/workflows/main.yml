@@ -17,20 +17,22 @@ jobs:
           pip install semgrep bandit
           npm install -g codeclimate-test-reporter snyk
 
-      - name: Run Semgrep
+      - name: Run Semgrep and Save as HTML
         run: |
           semgrep --config=.semgrep.yml . -o semgrep-report.html
         continue-on-error: true
 
-      - name: Run Bandit
+      - name: Run Bandit and Save as HTML
         run: |
           bandit -r . -f json -o bandit-report.json
+          bandit -r . -f html -o bandit-report.html
         continue-on-error: true
 
-      - name: Run CodeClimate
+      - name: Run CodeClimate and Save as HTML
         run: |
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.json
           codeclimate-test-reporter upload-coverage -i codeclimate-report.json
+          codeclimate-test-reporter format-coverage -t html -o codeclimate-report.html
         continue-on-error: true
 
       - name: Fetch Data from Synk and Save as HTML
@@ -49,7 +51,7 @@ jobs:
           name: reports
           path: |
             semgrep-report.html
-            bandit-report.json
-            codeclimate-report.json
+            bandit-report.html
+            codeclimate-report.html
             snyk_report.html
             sonarcloud_report.html
