@@ -20,68 +20,32 @@ jobs:
           npm install -g codeclimate-test-reporter snyk
 
       - name: Run Semgrep
-        run: semgrep -o semgrep-report.html --config=.semgrep.yml .
+        run: semgrep -o semgrep-report.txt --config=.semgrep.yml .
 
       - name: Run Bandit
-        run: bandit -r . -f json -o bandit-report.json || true
-
-      - name: Convert Bandit JSON to HTML
-        run: |
-          echo '<html><body><pre>' > bandit-report.html
-          bandit -f json -n 1 -x bandit-report.json >> bandit-report.html
-          echo '</pre></body></html>' >> bandit-report.html
+        run: bandit -r . -f custom -o bandit-report.txt || true
 
       - name: Run CodeClimate
         run: |
-          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.html
-          codeclimate-test-reporter upload-coverage -i codeclimate.html
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.txt
         env:
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
 
       - name: Run Snyk
-        run: snyk test --all-projects --json > snyk-report.json
+        run: snyk test --all-projects --json > snyk-report.txt
 
-      - name: Upload Reports
+      - name: Generate SonarCloud Report Link
+        run: echo "SonarCloud Report: $SONARQUBE_PROJECT_URL/dashboard?id=$GITHUB_REPOSITORY"
+
+      - name: Combine Reports
+        run: |
+          cat semgrep-report.txt >> combined-report.txt
+          cat bandit-report.txt >> combined-report.txt
+          cat codeclimate.txt >> combined-report.txt
+          cat snyk-report.txt >> combined-report.txt
+
+      - name: Upload Combined Report
         uses: actions/upload-artifact@v2
         with:
-          name: reports
-          path: |
-            semgrep-report.html
-            bandit-report.html
-            codeclimate.html
-            snyk-report.json
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install SonarScanner
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.1.3023-linux.zip
-          unzip sonar-scanner-cli-4.8.1.3023-linux.zip -d /opt
-          echo 'export PATH=$PATH:/opt/sonar-scanner-4.8.1.3023-linux/bin' >> $GITHUB_ENV
-
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run SonarCloud
-        run: |
-          sonar-scanner \
-            -Dsonar.organization=hymasaranya \
-            -Dsonar.projectKey=hymasaranya \
-            -Dsonar.sources=.
-
-      - name: Upload SonarCloud Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: sonarcloud-report
-          path: .scannerwork/report-task.txt
+          name: combined-report
+          path: combined-report.txt
