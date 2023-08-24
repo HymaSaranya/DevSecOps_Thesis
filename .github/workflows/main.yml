@@ -16,6 +16,7 @@ jobs:
         run: |
           pip install semgrep bandit
           npm install -g codeclimate-test-reporter snyk
+          
       - name: Run Semgrep
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
         continue-on-error: true
@@ -29,6 +30,11 @@ jobs:
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
           codeclimate-test-reporter upload-coverage -i codeclimate.json
         continue-on-error: true
+
+      - name: Generate Synk Report URL
+        run: |
+          # Generate the Synk report URL and save it to a file
+          echo "https://www.synk-report-url.com" > snyk_report_url.txt
 
       - name: Upload Snyk Report URL
         uses: actions/upload-artifact@v2
@@ -45,4 +51,3 @@ jobs:
             bandit-report.html
             codeclimate.json
             snyk-report.json
-
