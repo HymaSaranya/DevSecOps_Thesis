@@ -30,10 +30,11 @@ jobs:
           codeclimate-test-reporter upload-coverage -i codeclimate.json
         continue-on-error: true
 
-      - name: Run Snyk
-        run: snyk test --all-projects --json > snyk-report.json
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
+      - name: Upload Snyk Report URL
+        uses: actions/upload-artifact@v2
+        with:
+          name: snyk-report-url
+          path: snyk_report_url.txt
 
       - name: Upload Reports
         uses: actions/upload-artifact@v2
