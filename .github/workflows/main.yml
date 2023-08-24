@@ -34,7 +34,7 @@ jobs:
       - name: Generate Synk Report URL
         run: |
           # Generate the Synk report URL and save it to a file
-          echo "https://www.synk-report-url.com" > snyk_report_url.txt
+          echo "https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0" > snyk_report_url.txt
 
       - name: Upload Snyk Report URL
         uses: actions/upload-artifact@v2
