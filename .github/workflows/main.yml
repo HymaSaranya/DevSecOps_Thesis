@@ -16,7 +16,7 @@ jobs:
         run: |
           pip install semgrep bandit
           npm install -g codeclimate-test-reporter snyk
-          
+
       - name: Run Semgrep
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
         continue-on-error: true
@@ -30,6 +30,21 @@ jobs:
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
           codeclimate-test-reporter upload-coverage -i codeclimate.json
         continue-on-error: true
+
+      - name: Fetch Data and Generate HTML Report
+        run: |
+          # Fetch data from a website using curl
+          data=$(curl -s https://codeclimate.com/github/HymaSaranya/DevSecOps_Thesis)
+
+          # Generate HTML report using the fetched data
+          echo "<html><body><h1>Generated Report</h1><p>$data</p></body></html>" > generated-report.html
+        continue-on-error: true
+
+      - name: Upload Generated HTML Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: generated-report
+          path: generated-report.html
 
       - name: Generate Synk Report URL
         run: |
@@ -50,4 +65,5 @@ jobs:
             semgrep-report.html
             bandit-report.html
             codeclimate.json
-            snyk-report.json
+            snyk_report_url.txt
+            generated-report.html
