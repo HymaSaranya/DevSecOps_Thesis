@@ -1,0 +1,18 @@
+name: CodeClimate Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  codeclimate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Run CodeClimate analysis
+        uses: codeclimate/quality-action@v2
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TOKEN }}
