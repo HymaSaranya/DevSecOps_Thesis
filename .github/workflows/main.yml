@@ -15,7 +15,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Dependencies
-        run: pip install semgrep bandit
+        run: |
+          pip install semgrep bandit
+          npm install -g codeclimate-test-reporter snyk
 
       - name: Run Semgrep
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
@@ -23,79 +25,20 @@ jobs:
       - name: Run Bandit
         run: bandit -r . -f html -o bandit-report.html
 
-      - name: Upload Semgrep Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: semgrep-report
-          path: semgrep-report.html
-
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: bandit-report
-          path: bandit-report.html
-
-  codeclimate:
-    name: CodeClimate Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        run: npm install -g codeclimate-test-reporter
-
       - name: Run CodeClimate
         run: |
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
           codeclimate-test-reporter upload-coverage -i codeclimate.json
 
-      - name: Upload CodeClimate Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: codeclimate-report
-          path: codeclimate.json
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run SonarCloud
-        run: |
-          sonar-scanner \
-            -Dsonar.organization=hymasaranya \
-            -Dsonar.projectKey=hymasaranya \
-            -Dsonar.sources=.
-
-  synk:
-    name: Synk Vulnerability Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        run: npm install -g snyk
-
-      - name: Run Synk
+      - name: Run Snyk
         run: snyk test --all-projects --all-sub-projects --json > snyk-report.json
 
-      - name: Upload Synk Report
+      - name: Upload Reports
         uses: actions/upload-artifact@v2
         with:
-          name: synk-report
-          path: snyk-report.json
+          name: reports
+          path: |
+            semgrep-report.html
+            bandit-report.html
+            codeclimate.json
+            snyk-report.json
