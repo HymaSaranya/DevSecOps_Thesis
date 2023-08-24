@@ -21,37 +21,43 @@ jobs:
         run: semgrep --config=.semgrep.yml .
         continue-on-error: true
 
-      - name: Run Bandit
-        run: bandit -r .
+      - name: Run Bandit and Generate HTML Report
+        run: |
+          bandit -r . -f html -o bandit-report.html
         continue-on-error: true
 
-      - name: Fetch Data from Synk, SonarCloud, and CodeClimate
+      - name: Run CodeClimate
+        run: |
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.html
+          codeclimate-test-reporter upload-coverage -i codeclimate-report.html
+        continue-on-error: true
+
+      - name: Fetch Data from Synk, SonarCloud
         run: |
           synk_data=$(curl -s https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0)
           sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
-          codeclimate_data=$(curl -s https://codeclimate.com/github/HymaSaranya/DevSecOps_Thesis)
 
-          echo "$synk_data" > synk-report.txt
-          echo "$sonarcloud_data" > sonarcloud-report.txt
-          echo "$codeclimate_data" > codeclimate-report.txt
-
-      - name: Consolidate Reports
-        run: |
-          cat synk-report.txt sonarcloud-report.txt codeclimate-report.txt > consolidated-reports.txt
-        continue-on-error: true
+          echo "$synk_data" > synk-report.html
+          echo "$sonarcloud_data" > sonarcloud-report.html
 
       - name: Print Bandit Report
-        run: cat bandit-report.txt
+        run: cat bandit-report.html
 
-      - name: Print Semgrep Results
-        run: semgrep --config=.semgrep.yml . --json | jq
-        continue-on-error: true
+      - name: Print CodeClimate Report
+        run: cat codeclimate-report.html
 
-      - name: Print Consolidated Reports
-        run: cat consolidated-reports.txt
+      - name: Print Synk Report
+        run: cat synk-report.html
 
-      - name: Upload Consolidated Reports
+      - name: Print SonarCloud Report
+        run: cat sonarcloud-report.html
+
+      - name: Upload Reports as Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: consolidated-reports
-          path: consolidated-reports.txt
+          name: reports
+          path: |
+            bandit-report.html
+            codeclimate-report.html
+            synk-report.html
+            sonarcloud-report.html
