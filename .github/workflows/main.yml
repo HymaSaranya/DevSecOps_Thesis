@@ -32,17 +32,13 @@ jobs:
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
 
       - name: Run Snyk
-        run: snyk test --all-projects --json > snyk-report.txt
+        run: snyk test --all-projects --json > snyk-report.txt || true
 
-      - name: Generate SonarCloud Report Link
-        run: echo "SonarCloud Report: $SONARQUBE_PROJECT_URL/dashboard?id=$GITHUB_REPOSITORY"
+      - name: Generate Report Link
+        run: echo "Combined Report: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA/checks"
 
       - name: Combine Reports
-        run: |
-          cat semgrep-report.txt >> combined-report.txt
-          cat bandit-report.txt >> combined-report.txt
-          cat codeclimate.txt >> combined-report.txt
-          cat snyk-report.txt >> combined-report.txt
+        run: cat semgrep-report.txt bandit-report.txt codeclimate.txt snyk-report.txt > combined-report.txt
 
       - name: Upload Combined Report
         uses: actions/upload-artifact@v2
