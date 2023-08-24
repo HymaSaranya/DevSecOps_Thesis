@@ -7,14 +7,20 @@ on:
 
 jobs:
   bandit:
+    name: Run Bandit
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Run Bandit
-        uses: docker://bandit/bandit:latest
+      
+      - name: Set Up Python
+        uses: actions/setup-python@v2
         with:
-          args: -r .
+          python-version: 3.8
 
+      - name: Install Bandit
+        run: pip install bandit
+      
+      - name: Run Bandit
+        run: bandit -r .
