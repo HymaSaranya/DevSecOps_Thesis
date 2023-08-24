@@ -15,4 +15,5 @@ jobs:
 
       - name: Run Bandit
         run: |
-          docker run --rm -v $PWD:/code -w /code bandit/bandit:latest bandit -r .
+          docker run --rm -v /mnt/c/path/to/your/repo:/code -w /code bandit/bandit:latest bandit -r .
+
