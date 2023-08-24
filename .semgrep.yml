@@ -1,5 +1,6 @@
 rules:
   - id: python.langsec.insecure-deserialization
+    severity: WARNING
     languages:
       - python
     patterns:
