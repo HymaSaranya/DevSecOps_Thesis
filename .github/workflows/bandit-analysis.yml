@@ -1,0 +1,25 @@
+name: Run Bandit Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bandit:
+    name: Run Bandit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Run Bandit in Docker
+        run: |
+          docker run --rm -v $PWD:/code -w /code quay.io/ansible/bandit:latest bandit -r .
+
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: bandit-report
+          path: bandit.json
