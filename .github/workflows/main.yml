@@ -4,8 +4,8 @@ on:
       - main
 
 jobs:
-  all_checks:
-    name: All Checks
+  security_checks:
+    name: Security Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -24,21 +24,21 @@ jobs:
 
       - name: Run Bandit
         run: |
-          bandit -r . -f html -o bandit-report.html
+          bandit -r . -f json -o bandit-report.json
         continue-on-error: true
 
       - name: Run CodeClimate
         run: |
-          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.html
-          codeclimate-test-reporter upload-coverage -i codeclimate-report.html
+          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.json
+          codeclimate-test-reporter upload-coverage -i codeclimate-report.json
         continue-on-error: true
 
-      - name: Fetch Data from Synk
+      - name: Fetch Data from Synk and Save as HTML
         run: |
           synk_data=$(curl -s https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0)
           echo "$synk_data" > snyk_report.html
 
-      - name: Fetch Data from SonarCloud
+      - name: Fetch Data from SonarCloud and Save as HTML
         run: |
           sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
           echo "$sonarcloud_data" > sonarcloud_report.html
@@ -49,7 +49,7 @@ jobs:
           name: reports
           path: |
             semgrep-report.html
-            bandit-report.html
-            codeclimate-report.html
+            bandit-report.json
+            codeclimate-report.json
             snyk_report.html
             sonarcloud_report.html
