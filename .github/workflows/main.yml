@@ -27,7 +27,7 @@ jobs:
         run: pip install semgrep
 
       - name: Run Semgrep
-        run: semgrep -o report.html .
+        run: semgrep --config .semgrep.yml .
 
       - name: Upload Report
         uses: actions/upload-artifact@v2
