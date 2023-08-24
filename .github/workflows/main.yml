@@ -18,56 +18,38 @@ jobs:
           npm install -g codeclimate-test-reporter snyk
 
       - name: Run Semgrep
-        run: semgrep -o semgrep-report.html --config=.semgrep.yml .
+        run: semgrep --config=.semgrep.yml .
         continue-on-error: true
 
       - name: Run Bandit
-        run: bandit -r . -f html -o bandit-report.html
+        run: bandit -r .
         continue-on-error: true
-        
-      - name: Print Bandit Report
-        run: cat bandit-report.html  # Print the Bandit report contents
-        continue-on-error: true
-        
-      - name: Run CodeClimate
+
+      - name: Fetch Data from Synk, SonarCloud, and CodeClimate
         run: |
-          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.json
-          codeclimate-test-reporter upload-coverage -i codeclimate.json
-        continue-on-error: true
+          synk_data=$(curl -s https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0)
+          sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
+          codeclimate_data=$(curl -s https://codeclimate.com/github/HymaSaranya/DevSecOps_Thesis)
 
-      - name: Fetch Data and Generate HTML Report
+          echo "$synk_data" > synk-report.txt
+          echo "$sonarcloud_data" > sonarcloud-report.txt
+          echo "$codeclimate_data" > codeclimate-report.txt
+
+      - name: Consolidate Reports
         run: |
-          # Fetch data from a website using curl
-          data=$(curl -s https://codeclimate.com/github/HymaSaranya/DevSecOps_Thesis)
-
-          # Generate HTML report using the fetched data
-          echo "<html><body><h1>Generated Report</h1><p>$data</p></body></html>" > generated-report.html
+          cat synk-report.txt sonarcloud-report.txt codeclimate-report.txt > consolidated-reports.txt
         continue-on-error: true
 
-      - name: Upload Generated HTML Report
+      - name: Print Semgrep and Bandit Reports
+        run: |
+          cat semgrep-results.json
+          cat bandit-report.txt
+
+      - name: Print Consolidated Reports
+        run: cat consolidated-reports.txt
+
+      - name: Upload Consolidated Reports
         uses: actions/upload-artifact@v2
         with:
-          name: generated-report
-          path: generated-report.html
-
-      - name: Generate Synk Report URL
-        run: |
-          # Generate the Synk report URL and save it to a file
-          echo "https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0" > snyk_report_url.txt
-
-      - name: Upload Snyk Report URL
-        uses: actions/upload-artifact@v2
-        with:
-          name: snyk-report-url
-          path: snyk_report_url.txt
-
-      - name: Upload Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: reports
-          path: |
-            semgrep-report.html
-            bandit-report.html
-            codeclimate.json
-            snyk_report_url.txt
-            generated-report.html
+          name: consolidated-reports
+          path: consolidated-reports.txt
