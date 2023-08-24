@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   semgrep:
     name: Run Semgrep and Generate Report
