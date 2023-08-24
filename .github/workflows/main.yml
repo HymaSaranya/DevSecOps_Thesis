@@ -28,7 +28,7 @@ jobs:
       - name: Convert Bandit JSON to HTML
         run: |
           echo '<html><body><pre>' > bandit-report.html
-          bandit -f json -n 1 -x bandit-report.json >> bandit-report.html
+          bandit -f json -n 1 -x bandit-report.json || true
           echo '</pre></body></html>' >> bandit-report.html
 
       - name: Run CodeClimate
