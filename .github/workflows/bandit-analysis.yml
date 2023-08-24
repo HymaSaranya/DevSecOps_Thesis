@@ -14,9 +14,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Run Bandit in Docker
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Bandit
         run: |
-          docker run --rm -v $PWD:/code -w /code bandit/bandit:latest bandit -r .
+          pip install bandit
+
+      - name: Run Bandit
+        run: |
+          bandit -r .
 
       - name: Upload Bandit Report
         uses: actions/upload-artifact@v2
