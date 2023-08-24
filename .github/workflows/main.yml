@@ -28,13 +28,15 @@ jobs:
       - name: Convert Bandit JSON to HTML
         run: |
           echo '<html><body><pre>' > bandit-report.html
-          bandit -f json -n 1 -x bandit-report.json || true
+          bandit -f json -n 1 -x bandit-report.json >> bandit-report.html
           echo '</pre></body></html>' >> bandit-report.html
 
       - name: Run CodeClimate
         run: |
           codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate.html
           codeclimate-test-reporter upload-coverage -i codeclimate.html
+        env:
+          CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
 
       - name: Run Snyk
         run: snyk test --all-projects --json > snyk-report.json
