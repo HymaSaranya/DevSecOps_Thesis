@@ -1,0 +1,2 @@
+rules:
+  - id: python.langsec.insecure-deserialization
