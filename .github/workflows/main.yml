@@ -36,12 +36,12 @@ jobs:
       - name: Fetch Data from Synk
         run: |
           synk_data=$(curl -s https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0)
-          echo "$synk_data" > synk-report.html
+          echo "$synk_data" > snyk_report.html
 
       - name: Fetch Data from SonarCloud
         run: |
           sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
-          echo "$sonarcloud_data" > sonarcloud-report.html
+          echo "$sonarcloud_data" > sonarcloud_report.html
 
       - name: Upload Reports as Artifacts
         uses: actions/upload-artifact@v2
@@ -51,5 +51,5 @@ jobs:
             semgrep-report.html
             bandit-report.html
             codeclimate-report.html
-            synk-report.html
-            sonarcloud-report.html
+            snyk_report.html
+            sonarcloud_report.html
