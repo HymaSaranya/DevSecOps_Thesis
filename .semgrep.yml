@@ -1,5 +1,7 @@
 rules:
   - id: python.langsec.insecure-deserialization
+    languages:
+      - python
     patterns:
       - pattern: pickle.loads({any_arguments})
     message: "Insecure deserialization detected"
