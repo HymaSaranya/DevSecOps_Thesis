@@ -59,6 +59,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Install SonarScanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.1.3023-linux.zip
+          unzip sonar-scanner-cli-4.8.1.3023-linux.zip -d /opt
+          echo 'export PATH=$PATH:/opt/sonar-scanner-4.8.1.3023-linux/bin' >> $GITHUB_ENV
+
       - name: Set Up Python
         uses: actions/setup-python@v2
         with:
