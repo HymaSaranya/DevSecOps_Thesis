@@ -40,10 +40,12 @@ jobs:
           cat synk-report.txt sonarcloud-report.txt codeclimate-report.txt > consolidated-reports.txt
         continue-on-error: true
 
-      - name: Print Semgrep and Bandit Reports
-        run: |
-          cat semgrep-results.json
-          cat bandit-report.txt
+      - name: Print Bandit Report
+        run: cat bandit-report.txt
+
+      - name: Print Semgrep Results
+        run: semgrep --config=.semgrep.yml . --json | jq
+        continue-on-error: true
 
       - name: Print Consolidated Reports
         run: cat consolidated-reports.txt
