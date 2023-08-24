@@ -23,7 +23,7 @@ jobs:
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
 
       - name: Run Bandit
-        run: bandit -r . -f json -o bandit-report.json || true
+        run: bandit -r . || true
 
       - name: Run CodeClimate
         run: |
