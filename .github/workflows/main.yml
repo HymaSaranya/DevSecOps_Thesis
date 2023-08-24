@@ -18,10 +18,11 @@ jobs:
           npm install -g codeclimate-test-reporter snyk
 
       - name: Run Semgrep
-        run: semgrep --config=.semgrep.yml .
+        run: |
+          semgrep --config=.semgrep.yml . -o semgrep-report.html
         continue-on-error: true
 
-      - name: Run Bandit and Generate HTML Report
+      - name: Run Bandit
         run: |
           bandit -r . -f html -o bandit-report.html
         continue-on-error: true
@@ -32,31 +33,22 @@ jobs:
           codeclimate-test-reporter upload-coverage -i codeclimate-report.html
         continue-on-error: true
 
-      - name: Fetch Data from Synk, SonarCloud
+      - name: Fetch Data from Synk
         run: |
           synk_data=$(curl -s https://app.snyk.io/org/hymasaranya/project/9b7a5f6e-32f5-4818-a6c1-d95d143662c0)
-          sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
-
           echo "$synk_data" > synk-report.html
+
+      - name: Fetch Data from SonarCloud
+        run: |
+          sonarcloud_data=$(curl -s https://sonarcloud.io/projects)
           echo "$sonarcloud_data" > sonarcloud-report.html
-
-      - name: Print Bandit Report
-        run: cat bandit-report.html
-
-      - name: Print CodeClimate Report
-        run: cat codeclimate-report.html
-
-      - name: Print Synk Report
-        run: cat synk-report.html
-
-      - name: Print SonarCloud Report
-        run: cat sonarcloud-report.html
 
       - name: Upload Reports as Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: reports
           path: |
+            semgrep-report.html
             bandit-report.html
             codeclimate-report.html
             synk-report.html
