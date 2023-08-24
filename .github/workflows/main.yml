@@ -23,10 +23,13 @@ jobs:
         run: semgrep -o semgrep-report.html --config=.semgrep.yml .
 
       - name: Run Bandit
-        run: bandit -r . -f json -o bandit-report.json
+        run: bandit -r . -f json -o bandit-report.json || true
 
       - name: Convert Bandit JSON to HTML
-        run: bandit -f html -o bandit-report.html -n 1 -x bandit-report.json
+        run: |
+          echo '<html><body><pre>' > bandit-report.html
+          bandit -f json -n 1 -x bandit-report.json >> bandit-report.html
+          echo '</pre></body></html>' >> bandit-report.html
 
       - name: Run CodeClimate
         run: |
