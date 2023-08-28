@@ -19,7 +19,7 @@ jobs:
 
       - name: Run Semgrep and Save as HTML
         run: |
-          semgrep --config=.semgrep.yml . -o semgrep-report.html
+          semgrep --config=semgrep.yml . -o semgrep-report.html
         continue-on-error: true
 
       - name: Run Bandit and Save as HTML
