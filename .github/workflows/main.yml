@@ -24,14 +24,14 @@ jobs:
 
       - name: Run Bandit and Save as HTML
         run: |
-          bandit -r . -f json -o bandit-report.json
+          # bandit -r . -f json -o bandit-report.json
           bandit -r . -f html -o bandit-report.html
         continue-on-error: true
 
       - name: Run CodeClimate and Save as HTML
         run: |
-          codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.json
-          codeclimate-test-reporter upload-coverage -i codeclimate-report.json
+          # codeclimate-test-reporter format-coverage -t coverage.py -o codeclimate-report.json
+          # codeclimate-test-reporter upload-coverage -i codeclimate-report.json
           codeclimate-test-reporter format-coverage -t html -o codeclimate-report.html
         continue-on-error: true
 
